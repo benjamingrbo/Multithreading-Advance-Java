@@ -10,12 +10,22 @@ public class FileHandler extends Thread{
     public FileHandler(String fileToHandle){
         this.fileToHandle = fileToHandle;
     }
+    //method which reads first line aka target word
 
     private String getFirstLine() throws IOException {
         //System.out.println(firstLine);
         return Files.readAllLines(Paths.get(fileToHandle)).get(0);
     }
-
+    /*
+    Method which finds all characters in line/string and save them in hashmap
+    for example: BALLOON
+    Key:value
+    A:1
+    B:1
+    L:2
+    O:2
+    N:1
+     */
     private static HashMap<Character, Integer> allCharactersInLine(String line){
         HashMap<Character, Integer> numberOfRequiredCharsPerChar = new HashMap<>();
         for(int i=0; i<line.length(); i++){
@@ -29,14 +39,18 @@ public class FileHandler extends Thread{
         }
         return numberOfRequiredCharsPerChar;
     }
-
+    /*
+    Method that compares relevant keys/chars from target word and every line
+     It uses temp HashMap to store number or repeating of each relevant char, if it isn't relevant value will be 0, and if you need for example
+     2 'L' chars for one word you will store 1 in this hashmap.
+     */
     private static void numberOfWordsInLine(String firstLine, String line, HashMap<Character, Integer> numberOfCharsInFirstLine, HashMap<Character,Integer> numberOfCharsInLine){
-        HashMap<Character, Integer> tempHashForLine = new HashMap<>();
+        HashMap<Character, Integer> tempHashForLine = new HashMap<>();//Temp/help HashMap
         for(Character key : numberOfCharsInFirstLine.keySet()){
             if(numberOfCharsInLine.containsKey(key)){
-                tempHashForLine.put(key, numberOfCharsInLine.get(key)/numberOfCharsInFirstLine.get(key));
+                tempHashForLine.put(key, numberOfCharsInLine.get(key)/numberOfCharsInFirstLine.get(key));//Relevant char
             }else{
-                tempHashForLine.put(key, 0);
+                tempHashForLine.put(key, 0);//Irrelevant char
             }
         }
 
@@ -62,16 +76,17 @@ public class FileHandler extends Thread{
     @Override
     public void run() {
         try {
-            String firstLine = getFirstLine();
-            HashMap<Character, Integer> requiredChars = allCharactersInLine(getFirstLine());//broj slova u nultoj rijeci
+            String firstLine = getFirstLine();//Target word
+            HashMap<Character, Integer> requiredChars = allCharactersInLine(getFirstLine());//Chars in target word
             //System.out.println(requiredChars);//za provjeru - obrisati
             //System.out.println("--------------");//za provjeru - obrisati
+
             //Prolazimo kroz redove startajuci od drugog reda
             BufferedReader reader = new BufferedReader(new FileReader(fileToHandle));
-            reader.readLine();
+            reader.readLine();//Skip first line
             String row;
             while((row = reader.readLine()) != null){
-                HashMap<Character, Integer> charsInLine = allCharactersInLine(row);
+                HashMap<Character, Integer> charsInLine = allCharactersInLine(row);//Chars in every line/string
                 //System.out.println(charsInLine);//za provjeru - obrisati
                 numberOfWordsInLine(firstLine, row, requiredChars, charsInLine);
             }
